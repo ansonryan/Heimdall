@@ -68,3 +68,22 @@ async function refreshBackground() {
 
 refreshBackground();
 window.setInterval(refreshBackground, BG_INTERVAL);
+
+// ---------------------------------------------------------------
+// 设置页：分组 tab 切换
+// ---------------------------------------------------------------
+function initSettingsTabs() {
+  const tabs = document.querySelectorAll(".settings-tab");
+  if (!tabs.length) return;
+
+  const panels = document.querySelectorAll(".settings-panel");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.toggle("active", t === tab));
+      panels.forEach((p) => p.classList.toggle("active", p.id === tab.dataset.tab));
+    });
+  });
+}
+
+initSettingsTabs();

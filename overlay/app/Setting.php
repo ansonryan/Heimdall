@@ -51,6 +51,29 @@ class Setting extends Model
      */
     protected $table = 'settings';
 
+    /**
+     * 这些 key 存储的是全局值（system=1），但允许在后台编辑。
+     * 其它 system 项（version、support 等）保持只读。
+     */
+    public const EDITABLE_SYSTEM_KEYS = [
+        'casdoor_enabled',
+        'casdoor_base_url',
+        'casdoor_client_id',
+        'casdoor_client_secret',
+        'casdoor_redirect_uri',
+        'casdoor_auto_create',
+        'tmdb_enabled',
+        'tmdb_api_key',
+        'tmdb_language',
+        'tmdb_mode',
+    ];
+
+    public static function isEditable(self $setting): bool
+    {
+        return (bool) $setting->system !== true
+            || in_array($setting->key, self::EDITABLE_SYSTEM_KEYS, true);
+    }
+
     protected $fillable = [
         'id', 'group_id', 'key', 'type', 'options', 'label', 'value', 'order', 'system',
     ];

@@ -3,7 +3,19 @@
 @section('content')
 
     @if($enable_auth_admin_controls)
+    <div class="settings-tabs" role="tablist">
+        @foreach ($groups as $index => $group)
+        <button type="button"
+                role="tab"
+                class="settings-tab{{ $index === 0 ? ' active' : '' }}"
+                data-tab="group-{{ $group->id }}">
+            {{ __($group->title) }}
+        </button>
+        @endforeach
+    </div>
+
     @foreach ($groups as $index => $group)
+    <div class="settings-panel{{ $index === 0 ? ' active' : '' }}" id="group-{{ $group->id }}">
         <section class="module-container">
             <header>
                 <div class="section-title">
@@ -38,7 +50,7 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if((bool)$setting->system !== true)
+                                    @if(\App\Setting::isEditable($setting))
                                     <a href="{!! route('settings.edit', ['id' => $setting->id]) !!}" title="{{ __('app.settings.edit') }} {!! $setting->label !!}" class="secondary"><i class="fa fa-pencil"></i></a>
                                     @endif
                                 </td>
@@ -57,6 +69,7 @@
                 </tbody>
             </table>
         </section>
+    </div>
     @endforeach
     @else
     <section class="module-container">
