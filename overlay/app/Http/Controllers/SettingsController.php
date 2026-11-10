@@ -36,25 +36,23 @@ class SettingsController extends Controller
     public function edit(int $id)
     {
         $setting = Setting::find($id);
-        //die("s: ".$setting->label);
 
-        if ((bool) $setting->system === true) {
+        if (is_null($setting)) {
+            return redirect(route('settings.index', []))
+                ->with([
+                    'errors' => collect([__('app.alert.error.not_exist')]),
+                ]);
+        }
+
+        // 只读项（如 version）仍然 404；集成配置走白名单，可以编辑
+        if (! Setting::isEditable($setting)) {
             return abort(404);
         }
 
-        if (! is_null($setting)) {
-            return view('settings.edit')->with([
-                'setting' => $setting,
-                'value' => $setting->value,
-            ]);
-        } else {
-            $route = route('settings.list', []);
-
-            return redirect($route)
-            ->with([
-                'errors' => collect([__('app.alert.error.not_exist')]),
-            ]);
-        }
+        return view('settings.edit')->with([
+            'setting' => $setting,
+            'value' => $setting->value,
+        ]);
     }
 
     public function update(Request $request, int $id): RedirectResponse
