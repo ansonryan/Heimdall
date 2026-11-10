@@ -440,8 +440,10 @@ body {
 }
 
 // ---------- 设置页：分组 tab ----------
+// 默认不显示 tab、所有分组堆叠；脚本跑起来后给 body 加 lg-tabs-ready
+// 才切换到 tab 模式。这样脚本被缓存/被拦时也不会把内容藏死。
 .settings-tabs {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   gap: 8px;
   max-width: 1000px;
@@ -452,6 +454,10 @@ body {
     padding: 0 16px;
     gap: 6px;
   }
+}
+
+body.lg-tabs-ready .settings-tabs {
+  display: flex;
 }
 
 .settings-tab {
@@ -490,6 +496,10 @@ body {
 }
 
 .settings-panel {
+  display: block;
+}
+
+body.lg-tabs-ready .settings-panel {
   display: none;
 
   &.active { display: block; }

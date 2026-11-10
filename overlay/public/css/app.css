@@ -2588,7 +2588,7 @@ body {
 }
 
 .settings-tabs {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   gap: 8px;
   max-width: 1000px;
@@ -2600,6 +2600,10 @@ body {
     padding: 0 16px;
     gap: 6px;
   }
+}
+
+body.lg-tabs-ready .settings-tabs {
+  display: flex;
 }
 
 .settings-tab {
@@ -2637,8 +2641,12 @@ body {
 }
 
 .settings-panel {
+  display: block;
+}
+
+body.lg-tabs-ready .settings-panel {
   display: none;
 }
-.settings-panel.active {
+body.lg-tabs-ready .settings-panel.active {
   display: block;
 }

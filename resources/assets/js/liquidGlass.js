@@ -71,19 +71,53 @@ window.setInterval(refreshBackground, BG_INTERVAL);
 
 // ---------------------------------------------------------------
 // 设置页：分组 tab 切换
+// 用事件委托绑在 document 上，不依赖初始化时机，
+// 也不会因为脚本早于面板渲染而失效。
 // ---------------------------------------------------------------
-function initSettingsTabs() {
-  const tabs = document.querySelectorAll(".settings-tab");
-  if (!tabs.length) return;
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!target || !target.closest) return;
 
-  const panels = document.querySelectorAll(".settings-panel");
+  const tab = target.closest(".settings-tab");
+  if (!tab) return;
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => t.classList.toggle("active", t === tab));
-      panels.forEach((p) => p.classList.toggle("active", p.id === tab.dataset.tab));
-    });
+  const id = tab.dataset.tab;
+  if (!id) return;
+
+  event.preventDefault();
+
+  document.querySelectorAll(".settings-tab").forEach((item) => {
+    const on = item === tab;
+    item.classList.toggle("active", on);
+    item.setAttribute("aria-selected", on ? "true" : "false");
   });
+
+  document.querySelectorAll(".settings-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === id);
+  });
+
+  if (history.replaceState) {
+    history.replaceState(null, "", "#" + id);
+  }
+});
+
+// 进入 tab 模式：只有在脚本确实跑起来、且页面上有 tab 时才隐藏非活动分组。
+// 万一脚本没加载，样式表保持「全部分组堆叠」，设置项不会消失。
+function enableSettingsTabs() {
+  if (!document.body) return;
+  if (!document.querySelector(".settings-tab")) return;
+
+  document.body.classList.add("lg-tabs-ready");
+
+  const hash = window.location.hash;
+  if (!hash || !hash.startsWith("#group-")) return;
+
+  const tab = document.querySelector('.settings-tab[data-tab="' + hash.slice(1) + '"]');
+  if (tab) tab.click();
 }
 
-initSettingsTabs();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", enableSettingsTabs);
+} else {
+  enableSettingsTabs();
+}
