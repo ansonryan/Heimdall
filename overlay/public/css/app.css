@@ -2634,3 +2634,101 @@ body.lg-tabs-ready .settings-panel {
 body.lg-tabs-ready .settings-panel.active {
   display: block;
 }
+
+.setting-edit-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  line-height: 1;
+  padding: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #48505c;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.55));
+  box-shadow: 0 1px 0 #fff inset, 0 2px 8px rgba(16, 24, 40, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+.setting-edit-btn:hover {
+  color: #0f1419;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 #fff inset, 0 6px 16px rgba(16, 24, 40, 0.16);
+}
+
+.setting-editor-row > td {
+  padding: 0 !important;
+  background: rgba(120, 150, 200, 0.06) !important;
+  border-bottom: 1px solid var(--lg-line);
+}
+
+.setting-inline-form {
+  padding: 14px 18px 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (max-width: 720px) {
+  .setting-inline-form {
+    padding: 12px 12px 14px;
+  }
+}
+
+.setting-inline-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lg-ink);
+  opacity: 0.75;
+}
+
+.setting-inline-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.setting-inline-body .form-control {
+  min-width: 280px;
+  max-width: 100%;
+}
+@media (max-width: 720px) {
+  .setting-inline-body .form-control {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.setting-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lg-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f1419;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.26s ease, transform 0.26s ease;
+}
+.lg-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.lg-toast.error {
+  color: #b42318;
+}

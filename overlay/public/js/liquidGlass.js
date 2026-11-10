@@ -121,3 +121,108 @@ if (document.readyState === "loading") {
 } else {
   enableSettingsTabs();
 }
+
+// ---------------------------------------------------------------
+// 设置页：行内编辑（点击铅笔就地展开，不跳页面）
+// ---------------------------------------------------------------
+function lgToast(text, isError) {
+  let el = document.querySelector(".lg-toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.className = "lg-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.classList.toggle("error", !!isError);
+  requestAnimationFrame(() => el.classList.add("show"));
+  clearTimeout(el._lgTimer);
+  el._lgTimer = setTimeout(() => el.classList.remove("show"), 2400);
+}
+
+function closeSettingEditors(except) {
+  document.querySelectorAll(".setting-editor-row").forEach((row) => {
+    if (row !== except) row.hidden = true;
+  });
+  document.querySelectorAll(".setting-edit-btn.active").forEach((btn) => {
+    if (!except || btn.dataset.id !== except.dataset.for) btn.classList.remove("active");
+  });
+}
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!target || !target.closest) return;
+
+  const btn = target.closest(".setting-edit-btn");
+  if (btn) {
+    event.preventDefault();
+    const row = document.querySelector('.setting-editor-row[data-for="' + btn.dataset.id + '"]');
+    if (!row) return;
+
+    const willOpen = row.hidden;
+    closeSettingEditors(row);
+    row.hidden = !willOpen;
+    btn.classList.toggle("active", willOpen);
+
+    if (willOpen) {
+      const first = row.querySelector("input:not([type=hidden]), select, textarea");
+      if (first) {
+        first.focus();
+        if (first.type === "text" || first.type === "password") first.select();
+      }
+    }
+    return;
+  }
+
+  const cancel = target.closest(".setting-cancel");
+  if (cancel) {
+    const row = cancel.closest(".setting-editor-row");
+    if (row) {
+      row.hidden = true;
+      const owner = document.querySelector('.setting-edit-btn[data-id="' + row.dataset.for + '"]');
+      if (owner) owner.classList.remove("active");
+    }
+  }
+});
+
+document.addEventListener("submit", async (event) => {
+  const form = event.target.closest && event.target.closest(".setting-inline-form");
+  if (!form) return;
+
+  event.preventDefault();
+
+  const row = form.closest(".setting-editor-row");
+  const id = row ? row.dataset.for : null;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    const res = await fetch(form.action, {
+      method: "POST",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        Accept: "application/json",
+      },
+      body: new FormData(form),
+      credentials: "same-origin",
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.message || "HTTP " + res.status);
+    }
+
+    if (id) {
+      const cell = document.querySelector('.setting-row[data-setting-id="' + id + '"] .setting-value-cell');
+      if (cell && data.display_html) cell.innerHTML = data.display_html;
+    }
+
+    if (row) row.hidden = true;
+    document.querySelectorAll(".setting-edit-btn.active").forEach((b) => b.classList.remove("active"));
+    lgToast(data.message || "Saved");
+  } catch (err) {
+    lgToast(err.message, true);
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+  }
+});

@@ -37,7 +37,7 @@
         /* editable using the 'Settings > Advanced > Custom CSS' option */
         {!! \App\Setting::fetch('custom_css') !!}
         </style>
-    <script defer src="/js/liquidGlass.js?v=lg4"></script></head>
+    <script defer src="/js/liquidGlass.js?v=lg5"></script></head>
     <body>
         <div id="app"{!! $alt_bg !!}>
             <nav class="sidenav">

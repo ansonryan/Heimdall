@@ -40,21 +40,47 @@
                 <tbody>
                     @if (count($group->settings) > 0)
                         @foreach ($group->settings as $setting)
-                            <tr>
+                            <tr class="setting-row" data-setting-id="{{ $setting->id }}">
                                 <td>{{ __($setting->label) }}</td>
-                                <td>
+                                <td class="setting-value-cell">
                                     @if($setting->type === "textarea")
-                                    <pre>{{ $setting->list_value }}</pre>
+                                    <pre class="setting-value">{!! $setting->list_value !!}</pre>
                                     @else
-                                    {!! $setting->list_value !!}
+                                    <span class="setting-value">{!! $setting->list_value !!}</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
                                     @if(\App\Setting::isEditable($setting))
-                                    <a href="{!! route('settings.edit', ['id' => $setting->id]) !!}" title="{{ __('app.settings.edit') }} {!! $setting->label !!}" class="secondary"><i class="fa fa-pencil"></i></a>
+                                    <button type="button"
+                                            class="setting-edit-btn"
+                                            data-id="{{ $setting->id }}"
+                                            title="{{ __('app.settings.edit') }} {{ $setting->label }}">
+                                        <i class="fa fa-pencil"></i>
+                                    </button>
                                     @endif
                                 </td>
                             </tr>
+                            @if(\App\Setting::isEditable($setting))
+                            <tr class="setting-editor-row" data-for="{{ $setting->id }}" hidden>
+                                <td colspan="3">
+                                    <form class="setting-inline-form"
+                                          method="POST"
+                                          action="{{ route('settings.edit', $setting->id) }}"
+                                          enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="setting-inline-label">{{ __($setting->label) }}</div>
+                                        <div class="setting-inline-body">
+                                            {!! $setting->edit_value !!}
+                                        </div>
+                                        <div class="setting-inline-actions">
+                                            <button type="submit" class="button"><i class="fa fa-save"></i><span>{{ __('app.buttons.save') }}</span></button>
+                                            <button type="button" class="button setting-cancel"><i class="fa fa-ban"></i><span>{{ __('app.buttons.cancel') }}</span></button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endif
                         @endforeach
                     @else
 

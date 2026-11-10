@@ -156,6 +156,12 @@ class Setting extends Model
                     $value = __('app.options.none');
                 }
                 break;
+            case 'password':
+                // 密钥类只在列表显示占位，避免明文暴露在屏幕上
+                $value = ($this->value === null || $this->value === '')
+                    ? __('app.options.none')
+                    : str_repeat('•', 8);
+                break;
             default:
                 $value = __($this->value);
                 break;
@@ -228,8 +234,10 @@ class Setting extends Model
                 $value = '<textarea name="value" class="form-control" cols="44" rows="15">' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '</textarea>';
                 break;
             case 'password':
-                $value = '<input type="password" name="value" class="form-control" autocomplete="new-password" value="' .
-                    htmlspecialchars((string) $this->value, ENT_QUOTES, 'UTF-8') . '" />';
+                // 不回填明文：已配置时用占位符提示，留空即保持原值
+                $filled = $this->value !== null && $this->value !== '';
+                $value = '<input type="password" name="value" class="form-control" autocomplete="new-password" placeholder="' .
+                    ($filled ? str_repeat('•', 8) : '') . '" />';
                 break;
             default:
                 $value = '<input type="text" name="value" class="form-control" value="' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '" />';

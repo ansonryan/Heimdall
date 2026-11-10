@@ -103,6 +103,11 @@ class SettingsController extends Controller
                 $setting_value = $data->value;
             }
 
+            // 密钥框留空 = 保持原值，避免误把已存的密钥清掉
+            if ($setting->type === 'password' && (string) $setting_value === '') {
+                $setting_value = $setting->value;
+            }
+
             if ((bool) $setting->system === true) {
                 // 系统级设置：写全局值，避免每个用户各存一份
                 $setting->value = $setting_value;
@@ -110,6 +115,21 @@ class SettingsController extends Controller
             } else {
                 $user->settings()->detach($setting->id);
                 $user->settings()->save($setting, ['uservalue' => $setting_value]);
+            }
+
+            // 行内保存：不跳页，直接把新的显示值返回给前端
+            if ($request->wantsJson()) {
+                $fresh = Setting::find($setting->id);
+                $display = $fresh->list_value;
+                $html = $fresh->type === 'textarea'
+                    ? '<pre class="setting-value">' . $display . '</pre>'
+                    : '<span class="setting-value">' . $display . '</span>';
+
+                return response()->json([
+                    'ok' => true,
+                    'display_html' => $html,
+                    'message' => __('app.alert.success.setting_updated'),
+                ]);
             }
 
             // 保存后回到刚才那个分组（列表页按 #group-N 恢复 tab）
@@ -120,6 +140,13 @@ class SettingsController extends Controller
                     'success' => __('app.alert.success.setting_updated'),
                 ]);
         } catch (Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => __('app.alert.error.' . $e->getMessage()),
+                ], 422);
+            }
+
             return redirect($route)
                 ->with([
                     'errors' => collect([__('app.alert.error.' . $e->getMessage())]),
