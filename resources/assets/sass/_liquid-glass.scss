@@ -277,33 +277,16 @@ body {
   color: transparent !important;
   background: none !important;
   opacity: 1;
-  z-index: 4;
+  z-index: 20;
   border-radius: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   i { display: none; }
 }
 
-// 编辑按钮必须压在点击层之上
-.item-container .item-edit {
-  z-index: 6;
-}
-
-// 编辑按钮
-.item-container .item-edit {
-  bottom: 10px;
-  left: 10px;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  background: var(--lg-glass-hi) !important;
-  border: 1px solid var(--lg-line);
-  color: var(--lg-ink-soft) !important;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 12px rgba(16, 24, 40, .16);
-}
-
-.item-container:hover .item-edit { display: block; }
+// 整卡可点
+.item-container { cursor: pointer; }
 
 // ---------- 顶栏 / 标签 / 搜索 ----------
 .appheader {

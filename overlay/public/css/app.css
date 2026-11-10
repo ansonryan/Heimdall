@@ -2412,33 +2412,17 @@ body {
   color: transparent !important;
   background: none !important;
   opacity: 1;
-  z-index: 4;
+  z-index: 20;
   border-radius: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .item .link i {
   display: none;
 }
 
-.item-container .item-edit {
-  z-index: 6;
-}
-
-.item-container .item-edit {
-  bottom: 10px;
-  left: 10px;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  background: var(--lg-glass-hi) !important;
-  border: 1px solid var(--lg-line);
-  color: var(--lg-ink-soft) !important;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.16);
-}
-
-.item-container:hover .item-edit {
-  display: block;
+.item-container {
+  cursor: pointer;
 }
 
 .appheader {
