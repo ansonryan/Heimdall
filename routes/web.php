@@ -1,7 +1,9 @@
 <?php
 
 use App\Application;
+use App\Http\Controllers\Auth\CasdoorController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BackgroundController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
@@ -33,6 +35,13 @@ if (config('app.url') !== 'http://localhost') {
 Route::get('/userselect/{user}', [LoginController::class, 'setUser'])->name('user.set');
 Route::get('/userselect', [UserController::class, 'selectUser'])->name('user.select');
 Route::get('/autologin/{uuid}', [LoginController::class, 'autologin'])->name('user.autologin');
+
+// Casdoor / OIDC 登录
+Route::get('/auth/casdoor', [CasdoorController::class, 'redirect'])->name('auth.casdoor');
+Route::get('/auth/casdoor/callback', [CasdoorController::class, 'callback'])->name('auth.casdoor.callback');
+
+// 自动背景（TMDB）
+Route::get('/api/background', [BackgroundController::class, 'tmdb'])->name('background.tmdb');
 
 Route::get('/', [ItemController::class,'dash'])->name('dash');
 Route::get('check_app_list', [ItemController::class,'checkAppList'])->name('applist');

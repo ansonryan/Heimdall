@@ -23,6 +23,18 @@ $user = \App\User::currentUser();
     </div>
         
 </form>
+
+@if(config('services.casdoor.enabled'))
+<div class="sso-login">
+    <a class="sso-btn" href="{{ route('auth.casdoor') }}">
+        <i class="fas fa-right-to-bracket"></i>
+        <span>{{ config('services.casdoor.button_label') }}</span>
+    </a>
+    @if($errors->any())
+    <div class="sso-error">{{ $errors->first() }}</div>
+    @endif
+</div>
+@endif
 @else
 <section class="module-container">
 <header>

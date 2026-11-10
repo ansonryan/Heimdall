@@ -1,5 +1,5 @@
                     <section class="item-container{{ $app->droppable . ' ' . $app->getTagClass()}}" data-name="{{ $app->title }}" data-id="{{ $app->id }}">
-                        <div class="item" style="background-color: {{ $app->colour }}">
+                        <div class="item" style="--item-tint: {{ $app->colour }}">
                             <div class="app-icon-container">
                                 @if($app->icon)
                                 <img class="app-icon" src="{{ asset('/storage/'.str_replace('supportedapps', 'icons', $app->icon)) }}" />

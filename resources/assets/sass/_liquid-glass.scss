@@ -1,0 +1,440 @@
+// ============================================================
+//  Liquid Glass  ·  Apple iOS 26 / 27 风格
+//  - 正方形自适应栅格（手机 2 列、平板 3-4 列、桌面 6-8 列）
+//  - 白玻璃 + 镜面镶边 + 跟随指针的高光
+//  - 跟随系统浅色 / 深色
+//  由 app.scss 末尾 @import，放在最后以便覆盖基础样式
+// ============================================================
+
+// ---------- tokens ----------
+$lg-radius: 24px;
+$lg-blur: 24px;
+
+:root {
+  --lg-radius: #{$lg-radius};
+  --lg-blur: #{$lg-blur};
+
+  --lg-ink: #101418;
+  --lg-ink-dim: rgba(16, 20, 24, .58);
+  --lg-ink-soft: rgba(16, 20, 24, .74);
+
+  --lg-glass: rgba(255, 255, 255, .52);
+  --lg-glass-hi: rgba(255, 255, 255, .72);
+  --lg-glass-lo: rgba(255, 255, 255, .28);
+  --lg-rim: rgba(255, 255, 255, .92);
+  --lg-line: rgba(255, 255, 255, .58);
+  --lg-shadow: 0 12px 30px rgba(16, 24, 40, .13), 0 2px 6px rgba(16, 24, 40, .07);
+  --lg-shadow-hi: 0 22px 48px rgba(16, 24, 40, .20), 0 4px 12px rgba(16, 24, 40, .10);
+  --lg-tint-base: rgba(255, 255, 255, .50);
+  --lg-tint-mix: 14%;
+  --lg-sheen: rgba(255, 255, 255, .60);
+  --lg-sheen-2: rgba(255, 255, 255, .22);
+  --lg-veil: linear-gradient(180deg, rgba(248, 251, 255, .74) 0%, rgba(238, 243, 250, .52) 48%, rgba(232, 238, 247, .68) 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-ink: #f3f6fb;
+    --lg-ink-dim: rgba(243, 246, 251, .60);
+    --lg-ink-soft: rgba(243, 246, 251, .80);
+    --lg-glass: rgba(28, 32, 40, .46);
+    --lg-glass-hi: rgba(56, 62, 74, .52);
+    --lg-glass-lo: rgba(18, 21, 27, .34);
+    --lg-rim: rgba(255, 255, 255, .34);
+    --lg-line: rgba(255, 255, 255, .16);
+    --lg-shadow: 0 14px 34px rgba(0, 0, 0, .46), 0 2px 8px rgba(0, 0, 0, .28);
+    --lg-shadow-hi: 0 24px 54px rgba(0, 0, 0, .58), 0 4px 14px rgba(0, 0, 0, .34);
+    --lg-tint-base: rgba(36, 41, 50, .50);
+    --lg-tint-mix: 18%;
+    --lg-sheen: rgba(255, 255, 255, .26);
+    --lg-sheen-2: rgba(255, 255, 255, .08);
+    --lg-veil: linear-gradient(180deg, rgba(6, 9, 14, .60) 0%, rgba(6, 9, 14, .44) 46%, rgba(6, 9, 14, .72) 100%);
+  }
+}
+
+// ---------- 基底 ----------
+html,
+body {
+  background-color: #eef2f8;
+  color: var(--lg-ink);
+  -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+    "Helvetica Neue", "Microsoft YaHei", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body { background-color: #070a10; }
+}
+
+body {
+  background-image:
+    radial-gradient(900px 620px at 8% -8%, rgba(186, 214, 255, .55), transparent 62%),
+    radial-gradient(820px 560px at 102% 0%, rgba(255, 214, 240, .42), transparent 60%),
+    radial-gradient(760px 760px at 46% 116%, rgba(190, 240, 220, .42), transparent 62%),
+    linear-gradient(180deg, #f7fafe 0%, #eef3fa 52%, #e9eff7 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-image:
+      radial-gradient(900px 620px at 8% -8%, rgba(40, 74, 140, .40), transparent 62%),
+      radial-gradient(820px 560px at 102% 0%, rgba(96, 44, 104, .34), transparent 60%),
+      radial-gradient(760px 760px at 46% 116%, rgba(20, 80, 80, .30), transparent 62%),
+      linear-gradient(180deg, #05070c 0%, #0a0e16 52%, #06090f 100%);
+  }
+}
+
+#app { background-color: transparent; }
+
+// ---------- 正方形栅格 ----------
+#sortable {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 14px !important;
+  align-content: start !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  padding: 20px !important;
+  max-width: 1680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// 分类模式（treat_tags_as = categories）时，分类块跨满整行
+#sortable.categories .category {
+  grid-column: 1 / -1;
+}
+
+.item-container {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0;
+}
+
+// ---------- 卡片本体 ----------
+.item {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  margin: 0 !important;
+  flex: none !important;
+  padding: 12px 10px !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border-radius: var(--lg-radius) !important;
+  border: 1px solid var(--lg-line) !important;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+
+  background-color: var(--lg-tint-base) !important;
+  background-color: color-mix(in srgb, var(--item-tint, rgba(150, 180, 230, .55)) var(--lg-tint-mix), var(--lg-tint-base)) !important;
+  background-image: none !important;
+
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(190%) brightness(1.06);
+  backdrop-filter: blur(var(--lg-blur)) saturate(190%) brightness(1.06);
+
+  box-shadow:
+    0 1px 0 var(--lg-rim) inset,
+    0 -1px 0 rgba(16, 24, 40, .06) inset,
+    0 1px 2px rgba(16, 24, 40, .05) inset,
+    var(--lg-shadow);
+
+  transition: transform .38s cubic-bezier(.22, .68, .26, 1),
+    box-shadow .38s ease, border-color .38s ease;
+  will-change: transform;
+
+  // 原样式里的那圈白色圆斑在这里会破坏通透感，关掉
+  &:after {
+    display: none !important;
+  }
+}
+
+// 镜面镶边
+.item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(148deg,
+      rgba(255, 255, 255, .98) 0%,
+      rgba(255, 255, 255, .42) 18%,
+      rgba(255, 255, 255, .10) 44%,
+      rgba(255, 255, 255, .30) 68%,
+      rgba(255, 255, 255, .86) 88%,
+      rgba(255, 255, 255, .54) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: .85;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+  .item::before { opacity: .55; }
+}
+
+// 内部折射光泽（顶部柔光 + 指针跟随）
+.item::after {
+  content: "";
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: inherit;
+  top: 0;
+  left: 0;
+  background:
+    radial-gradient(150% 96% at 50% -34%, var(--lg-sheen), transparent 62%),
+    radial-gradient(96% 84% at var(--lg-mx, 50%) var(--lg-my, 0%), var(--lg-sheen-2), transparent 66%);
+  opacity: .95;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.item:hover {
+  transform: translateY(-3px) scale(1.012);
+  border-color: var(--lg-rim) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 -1px 0 rgba(16, 24, 40, .06) inset,
+    var(--lg-shadow-hi);
+}
+
+// ---------- 卡片内容：纵向排布 ----------
+.item .app-icon-container {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item .app-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  filter: drop-shadow(0 3px 8px rgba(16, 24, 40, .20));
+  transition: transform .38s cubic-bezier(.22, .68, .26, 1);
+}
+
+.item:hover .app-icon { transform: scale(1.06); }
+
+.item .details {
+  width: 100%;
+  position: relative;
+  z-index: 3;
+  text-align: center;
+}
+
+.item .title {
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: .1px;
+  color: var(--lg-ink) !important;
+  text-shadow: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.item .livestats-container {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--lg-ink-dim) !important;
+}
+
+// 隐形点击层：铺满整张卡片，保证点哪儿都能进
+.item .link {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  right: 0;
+  bottom: 0;
+  padding: 0 !important;
+  line-height: normal !important;
+  font-size: 0 !important;
+  text-align: center;
+  color: transparent !important;
+  background: none !important;
+  opacity: 1;
+  z-index: 4;
+  border-radius: inherit;
+
+  i { display: none; }
+}
+
+// 编辑按钮必须压在点击层之上
+.item-container .item-edit {
+  z-index: 6;
+}
+
+// 编辑按钮
+.item-container .item-edit {
+  bottom: 10px;
+  left: 10px;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  background: var(--lg-glass-hi) !important;
+  border: 1px solid var(--lg-line);
+  color: var(--lg-ink-soft) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 12px rgba(16, 24, 40, .16);
+}
+
+.item-container:hover .item-edit { display: block; }
+
+// ---------- 顶栏 / 标签 / 搜索 ----------
+.appheader {
+  background: var(--lg-glass) !important;
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  border-bottom: 1px solid var(--lg-line);
+  box-shadow: 0 1px 0 var(--lg-rim) inset, 0 8px 24px rgba(16, 24, 40, .08);
+
+  ul li a { color: var(--lg-ink-soft) !important; text-shadow: none; }
+  ul li a:hover { color: var(--lg-ink) !important; }
+}
+
+.taglist .tag {
+  border-radius: 999px;
+  border: 1px solid var(--lg-line);
+  background: linear-gradient(180deg, var(--lg-glass-hi), var(--lg-glass-lo));
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 1px 0 var(--lg-rim) inset, 0 4px 14px rgba(16, 24, 40, .08);
+  color: var(--lg-ink-soft);
+
+  a { color: var(--lg-ink-soft) !important; }
+}
+
+.searchform input,
+#search {
+  background: var(--lg-glass-hi) !important;
+  border: 1px solid var(--lg-line) !important;
+  border-radius: 999px !important;
+  color: var(--lg-ink) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 1px 0 var(--lg-rim) inset, 0 6px 18px rgba(16, 24, 40, .08);
+}
+
+#config-buttons a {
+  background: var(--lg-glass-hi) !important;
+  border: 1px solid var(--lg-line);
+  color: var(--lg-ink-soft) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+
+// ---------- 响应式 ----------
+@media (max-width: 1200px) {
+  #sortable { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 12px !important; }
+}
+
+@media (max-width: 768px) {
+  #sortable {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  body { background-attachment: scroll; }
+
+  .item {
+    padding: 12px 8px !important;
+    gap: 8px;
+    box-shadow:
+      0 1px 0 var(--lg-rim) inset,
+      0 -1px 0 rgba(16, 24, 40, .05) inset,
+      0 4px 14px rgba(16, 24, 40, .10);
+  }
+
+  .item .app-icon { width: 38px; height: 38px; border-radius: 11px; }
+  .item .title { font-size: 11.5px; }
+  .item:hover { transform: none; }
+}
+
+@media (max-width: 380px) {
+  #sortable { gap: 8px !important; padding: 10px !important; }
+  .item .app-icon { width: 34px; height: 34px; }
+  .item .title { font-size: 11px; }
+}
+
+// 后端不支持毛玻璃时退化为实色，避免糊成一片
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .item {
+    background-color: rgba(255, 255, 255, .92) !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .item { background-color: rgba(28, 32, 40, .92) !important; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .item::after,
+  .item .app-icon { transition: none !important; transform: none !important; }
+}
+
+// ---------- Casdoor SSO 登录 ----------
+.sso-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+
+  .sso-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--lg-line);
+    background: linear-gradient(180deg, var(--lg-glass-hi), var(--lg-glass-lo));
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    backdrop-filter: blur(18px) saturate(180%);
+    color: var(--lg-ink) !important;
+    text-decoration: none !important;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 1px 0 var(--lg-rim) inset, var(--lg-shadow);
+    transition: transform .26s ease, box-shadow .26s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 1px 0 var(--lg-rim) inset, var(--lg-shadow-hi);
+    }
+  }
+
+  .sso-error {
+    font-size: 13px;
+    color: #b42318;
+    background: rgba(255, 255, 255, .5);
+    padding: 6px 12px;
+    border-radius: 10px;
+  }
+}
