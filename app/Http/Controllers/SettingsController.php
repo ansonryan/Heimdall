@@ -112,7 +112,10 @@ class SettingsController extends Controller
                 $user->settings()->save($setting, ['uservalue' => $setting_value]);
             }
 
-            return redirect($route)
+            // 保存后回到刚才那个分组（列表页按 #group-N 恢复 tab）
+            $target = $route . ($setting->group_id ? '#group-' . $setting->group_id : '');
+
+            return redirect($target)
                 ->with([
                     'success' => __('app.alert.success.setting_updated'),
                 ]);
