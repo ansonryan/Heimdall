@@ -25,7 +25,7 @@ class CasdoorController extends Controller
 
     public function redirect(Request $request): RedirectResponse
     {
-        $cfg = config('services.casdoor');
+        $cfg = $this->cfg();
         abort_unless($cfg['enabled'] && $cfg['client_id'] && $cfg['client_secret'], 404);
 
         try {
@@ -52,7 +52,7 @@ class CasdoorController extends Controller
 
     public function callback(Request $request): RedirectResponse
     {
-        $cfg = config('services.casdoor');
+        $cfg = $this->cfg();
         abort_unless($cfg['enabled'], 404);
 
         if ($request->filled('error')) {
@@ -145,6 +145,46 @@ class CasdoorController extends Controller
 
         $back = (string) $request->session()->pull('casdoor_back', '');
         return redirect()->to($this->safeBack($back));
+    }
+
+    /**
+     * 配置来源优先级：后台设置（settings 表） > .env。
+     */
+    private function cfg(): array
+    {
+        static $cache = null;
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $get = static function (string $key, $default = null) {
+            try {
+                $value = \App\Setting::fetch($key);
+            } catch (\Throwable $e) {
+                $value = null;
+            }
+            return ($value === null || $value === '') ? $default : $value;
+        };
+
+        $base = rtrim((string) $get('casdoor_base_url', config('services.casdoor.base_url')), '/');
+
+        $redirect = (string) $get('casdoor_redirect_uri', '');
+        if ($redirect === '') {
+            $redirect = rtrim((string) (config('app.url') ?: url('/')), '/') . '/auth/casdoor/callback';
+        }
+
+        $cache = [
+            'enabled'       => filter_var($get('casdoor_enabled', config('services.casdoor.enabled')), FILTER_VALIDATE_BOOLEAN),
+            'base_url'      => $base,
+            'client_id'     => (string) $get('casdoor_client_id', config('services.casdoor.client_id')),
+            'client_secret' => (string) $get('casdoor_client_secret', config('services.casdoor.client_secret')),
+            'redirect'      => $redirect,
+            'scope'         => (string) config('services.casdoor.scope', 'openid profile email'),
+            'auto_create'   => filter_var($get('casdoor_auto_create', config('services.casdoor.auto_create')), FILTER_VALIDATE_BOOLEAN),
+            'button_label'  => (string) config('services.casdoor.button_label', '使用 Casdoor 登录'),
+        ];
+
+        return $cache;
     }
 
     /**

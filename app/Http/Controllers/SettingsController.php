@@ -105,8 +105,14 @@ class SettingsController extends Controller
                 $setting_value = $data->value;
             }
 
-            $user->settings()->detach($setting->id);
-            $user->settings()->save($setting, ['uservalue' => $setting_value]);
+            if ((bool) $setting->system === true) {
+                // 系统级设置：写全局值，避免每个用户各存一份
+                $setting->value = $setting_value;
+                $setting->save();
+            } else {
+                $user->settings()->detach($setting->id);
+                $user->settings()->save($setting, ['uservalue' => $setting_value]);
+            }
 
             return redirect($route)
                 ->with([

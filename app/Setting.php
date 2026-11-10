@@ -204,6 +204,10 @@ class Setting extends Model
             case 'textarea':
                 $value = '<textarea name="value" class="form-control" cols="44" rows="15">' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '</textarea>';
                 break;
+            case 'password':
+                $value = '<input type="password" name="value" class="form-control" autocomplete="new-password" value="' .
+                    htmlspecialchars((string) $this->value, ENT_QUOTES, 'UTF-8') . '" />';
+                break;
             default:
                 $value = '<input type="text" name="value" class="form-control" value="' . htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8') . '" />';
                 break;

@@ -24,7 +24,10 @@ $user = \App\User::currentUser();
         
 </form>
 
-@if(config('services.casdoor.enabled'))
+@php
+    $casdoorOn = filter_var(rescue(fn () => \App\Setting::fetch('casdoor_enabled'), false), FILTER_VALIDATE_BOOLEAN);
+@endphp
+@if($casdoorOn)
 <div class="sso-login">
     <a class="sso-btn" href="{{ route('auth.casdoor') }}">
         <i class="fas fa-right-to-bracket"></i>

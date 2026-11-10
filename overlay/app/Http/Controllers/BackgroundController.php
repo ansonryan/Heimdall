@@ -15,9 +15,32 @@ class BackgroundController extends Controller
 {
     private const IMAGE_BASE = 'https://image.tmdb.org/t/p/';
 
+    /**
+     * 配置来源优先级：后台设置（settings 表） > .env。
+     */
+    private function cfg(): array
+    {
+        $get = static function (string $key, $default = null) {
+            try {
+                $value = \App\Setting::fetch($key);
+            } catch (\Throwable $e) {
+                $value = null;
+            }
+            return ($value === null || $value === '') ? $default : $value;
+        };
+
+        return [
+            'enabled'  => filter_var($get('tmdb_enabled', config('services.tmdb.enabled')), FILTER_VALIDATE_BOOLEAN),
+            'api_key'  => (string) $get('tmdb_api_key', config('services.tmdb.api_key')),
+            'language' => (string) $get('tmdb_language', config('services.tmdb.language', 'zh-CN')),
+            'mode'     => (string) $get('tmdb_mode', config('services.tmdb.mode', 'backdrop')),
+            'ttl'      => (int) config('services.tmdb.ttl', 1800),
+        ];
+    }
+
     public function tmdb(): JsonResponse
     {
-        $cfg = config('services.tmdb');
+        $cfg = $this->cfg();
 
         if (!$cfg['enabled'] || empty($cfg['api_key'])) {
             return response()->json(['url' => null, 'reason' => 'disabled']);
